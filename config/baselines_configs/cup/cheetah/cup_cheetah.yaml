@@ -1,0 +1,25 @@
+# @package _global_
+defaults:
+  - /base_configs/cup_dmc
+  - /oracles/dmc/cheetah_run
+  - _self_
+method_name: "CUP"
+
+seed: 42
+
+env:
+  domain_name: "cheetah"
+  task_name: "run"
+
+obs_config:
+  position: [8]
+  velocity: [9]
+
+input_mapping:
+  robot_states: ["velocity", "position"]
+
+run_name: ${method_name}_${env.domain_name}_${env.task_name}_seed${seed}
+
+training:
+  use_wandb: true
+  save_video: true

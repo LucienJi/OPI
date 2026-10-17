@@ -1,0 +1,28 @@
+# @package _global_
+defaults:
+  - /base_configs/maps_box2d
+  - /oracles/box2d/lander_learner
+  - _self_
+
+method_name: "MAPS_Lander_Learner"
+seed: 42
+
+env:
+  env_name: "lander"
+  mode: "learner"
+  stack_frames: 4
+  max_steps: 1000
+  seed: ${seed}
+
+obs_config:
+  state: [32]
+
+run_name: ${method_name}_${env.env_name}_${env.mode}_seed${seed}
+
+rl_agent_args:
+  action_dim: 2
+  action_high: [1.0, 1.0]
+  action_low: [-1.0, -1.0]
+
+rl_critic_args:
+  action_dim: 2

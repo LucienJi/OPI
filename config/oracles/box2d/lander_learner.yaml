@@ -1,0 +1,11 @@
+# @package _global_
+defaults:
+  - /paths
+  - _self_
+
+training:
+  oracle_std_multiplier: [0.8, 0.3, 0.3]
+oracles_dict:
+  oracle_0: '${paths.project_root}/checkpoints/lander_heavy/Simba_Lander_Heavy/seed42/checkpoints/Simba_Lander_Heavy_seed42_best.pt'
+  oracle_1: '${paths.project_root}/checkpoints/lander_stilt/Simba_Lander_Stilt/seed42/checkpoints/Simba_Lander_Stilt_seed42_best.pt'
+  oracle_2: '${paths.project_root}/checkpoints/lander_wide/Simba_Lander_Wide/seed42/checkpoints/Simba_Lander_Wide_seed42_best.pt'

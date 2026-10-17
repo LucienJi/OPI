@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+  - /base_configs/OPI_metaworld
+  - /oracles/metaworld/peg-insert-side
+  - _self_
+method_name: "OPI_PegInsertSide"
+seed: 42
+
+env:
+  env_name: "peg-insert-side-v3"
+  camera_to_render: "corner4"
+  seed: ${seed}
+
+run_name: ${method_name}_${env.env_name}_seed${seed}
+
+training:
+  reuse_action: true
+  n_oracles: 2

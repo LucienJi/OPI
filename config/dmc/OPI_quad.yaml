@@ -1,0 +1,33 @@
+# @package _global_
+defaults:
+  - /base_configs/OPI_dmc
+  - /oracles/dmc/quadruped_run
+  - _self_
+method_name: "OPI_quad"
+seed: 42
+
+env:
+  domain_name: "quadruped"
+  task_name: "run"
+  render_size: [128,128]
+  n_sub_steps: 1
+  seed: ${seed}
+
+obs_config:
+  egocentric_state: [44]
+  torso_velocity: [3]
+  torso_upright: [1]
+  imu: [6]
+  force_torque: [24]
+
+run_name: ${method_name}_${env.domain_name}_${env.task_name}_seed${seed}
+training:
+  reuse_action: false
+  baseline_greedy_guided: true
+  n_oracles: 3
+
+  save_video_every: 100000
+  use_wandb: true
+  use_compile: true
+  save_video: true
+  wandb_project_name: DMC

@@ -1,0 +1,8 @@
+# @package _global_
+oracle_policy:
+  max_noise_scales: [0.85, 0.85]
+  min_noise_scale: 0.3
+  variants: [0, 1]
+oracles_dict:
+  oracle_0: metaworld
+  oracle_1: metaworld

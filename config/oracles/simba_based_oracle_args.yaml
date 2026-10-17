@@ -1,0 +1,11 @@
+# @package _global_
+
+simba_based_oracle_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  noise_clip: 1.0

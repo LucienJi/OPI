@@ -1,0 +1,27 @@
+# @package _global_
+defaults:
+  - /base_configs/maps_dmc
+  - /oracles/dmc/walker_run
+  - _self_
+method_name: "MAPS"
+
+seed: 42
+
+env:
+  domain_name: "walker"
+  task_name: "run"
+
+obs_config:
+  orientations: [14]
+  height: [1]
+  velocity: [9]
+
+run_name: ${method_name}_${env.domain_name}_${env.task_name}_seed${seed}
+
+training:
+  n_oracles: 3
+  use_wandb: true
+  use_compile: true
+  save_video: true
+  save_video_every: 100000
+  wandb_project_name: DMC

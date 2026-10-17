@@ -1,0 +1,18 @@
+# @package _global_
+defaults:
+  - /base_configs/loki_metaworld
+  - /oracles/metaworld/stick-pull
+  - _self_
+method_name: "LOKI"
+
+seed: 42
+
+env:
+  env_name: "stick-pull-v3"
+  camera_to_render: "corner4"
+  seed: ${seed}
+
+run_name: ${method_name}_${env.env_name}_seed${seed}
+
+training:
+  n_oracles: 2

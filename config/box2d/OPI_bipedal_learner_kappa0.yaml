@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+  - /box2d/OPI_bipedal_learner
+  - _self_
+
+method_name: "OPI_Bipedal_kappa0"
+
+training:
+  reuse_action: true
+  baseline_greedy_guided: false
+  kappa: 0.0
+
+  save_video: false
+  wandb_tags: ["ablation", "box2d_dense", "kappa0"]

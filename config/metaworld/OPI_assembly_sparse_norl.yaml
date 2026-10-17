@@ -1,0 +1,31 @@
+# @package _global_
+defaults:
+  - /base_configs/OPI_metaworld
+  - /oracles/metaworld/assembly
+  - _self_
+
+method_name: "OPI_Assembly_Sparse_noRL"
+
+seed: 42
+
+env:
+  env_name: "assembly-v3"
+  camera_to_render: "corner4"
+  seed: ${seed}
+  sparse_reward: true
+
+run_name: ${method_name}_${env.env_name}_seed${seed}
+
+training:
+  reuse_action: true
+  n_oracles: 2
+
+  total_timesteps: 500000
+  capacity: 500000
+
+  rl_loss_weight: 0.0
+  awbc_magnitude_matching: false
+
+  save_video: false
+
+  wandb_tags: ["ablation", "mw_sparse", "norl"]

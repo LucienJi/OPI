@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - /dmc/OPI_quad
+  - _self_
+
+method_name: "OPI_Quad_argmax"
+
+training:
+  reuse_action: true
+  sampling_max_temperature: 1.0e-5
+  sampling_min_temperature: 1.0e-5
+
+  total_timesteps: 500000
+
+  save_video: false
+  wandb_tags: ["ablation", "dmc_dense", "argmax"]

@@ -1,0 +1,10 @@
+# @package _global_
+defaults:
+  - /paths
+  - _self_
+training:
+  oracle_std_multiplier: [0.2, 0.2, 0.2]
+oracles_dict:
+  oracle_0: '${paths.project_root}/checkpoints/BC_Hopper_STAND_hopper_stand_seed0/BC_Hopper_STAND_hopper_stand_seed0_999.pt'
+  oracle_1: '${paths.project_root}/checkpoints/BC_Hopper_HOP_hopper_hop_seed0/BC_Hopper_HOP_hopper_hop_seed0_3999.pt'
+  oracle_2: '${paths.project_root}/checkpoints/BC_Hopper_HOP_hopper_hop_seed0/BC_Hopper_HOP_hopper_hop_seed0_5999.pt'

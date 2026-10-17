@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - /dmc/OPI_hopper
+  - _self_
+
+method_name: "OPI_Hopper_kappa0"
+
+training:
+  reuse_action: true
+  baseline_greedy_guided: false
+  kappa: 0.0
+
+  total_timesteps: 500000
+
+  save_video: false
+  wandb_tags: ["ablation", "dmc_dense", "kappa0"]

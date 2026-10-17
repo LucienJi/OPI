@@ -1,0 +1,132 @@
+# @package _global_
+defaults:
+  - /paths
+  - /oracles/simba_based_oracle_args
+  - /oracles/mlp_based_oracle_args
+
+seed: 42
+save_video_fps: 30
+
+env:
+  render_size: [128,128]
+  n_sub_steps: 1
+  seed: ${seed}
+
+training:
+  run_name: ${run_name}
+  checkpoint_dir: ./checkpoints/${run_name}
+  seed: ${seed}
+  total_timesteps: 1000000
+  replay_dir: ./checkpoints/${run_name}/replay_buffer
+  capacity: 1000000
+  nstep: 1
+  discount: 0.99
+  tau: 0.005
+  save_episodes_to_disk: true
+
+  learner_learning_starts: 20000
+  per_oracle_explore_steps: 5000
+  warmup_update_times: 2000
+
+  action_selection_buffer_size: 10000
+
+  oracle_std_multiplier: 0.25
+
+  policy_delay: 2
+  learner_critic_utd_ratio: 2
+  learner_critic_batch_size: 1024
+
+  replay_ratio: 0.1
+  num_proposals: 5
+  kappa: 1.0
+  l1_loss_weight: 0.1
+  rl_loss_weight: 1.0
+  use_adaptive_actor_loss_weight: false
+
+  baseline_greedy_guided: true
+  scheduled_exploration: false
+  scheduled_exploration_steps: 800000
+  scheduled_exploration_prob: 0.8
+
+  sampling_max_temperature: 0.1
+  sampling_min_temperature: 0.01
+
+  min_exploration_noise: 0.01
+  max_exploration_noise: 0.2
+  target_policy_noise: 0.1
+  task_specific_noise: 0.1
+  clip_noise: 0.3
+  beta: 5.0
+
+  normalize_observations: true
+  normalize_rewards: true
+  normalized_g_max: 5.0
+
+  num_bins: 101
+  min_v: -5.0
+  max_v: 5.0
+
+  use_compile: true
+  actor_lr: 3e-4
+  critic_lr: 3e-4
+  value_lr: 3e-4
+  actor_weight_decay: 1e-4
+  critic_weight_decay: 1e-4
+  value_weight_decay: 1e-4
+  max_grad_norm: 1.0
+  policy_max_grad_norm: 1.0
+
+  eval_every: 5000
+  eval_episodes: 5
+  save_video_every: 10000
+  save_freq: 1000
+  save_video_fps: ${save_video_fps}
+  resume: true
+  use_wandb: true
+  save_video: true
+  wandb_project_name: Oracles
+  wandb_entity: ${oc.env:WANDB_ENTITY,null}
+  wandb_group: ${method_name}
+  log_every: 100
+  keep_checkpoint_num: 5
+
+  max_consecutive_steps: 1
+  min_consecutive_steps: 1
+  total_consecutive_steps: 400000
+  results_root_dir: ./results
+
+rl_agent_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  noise_clip: ${training.clip_noise}
+
+rl_critic_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  num_bins: ${training.num_bins}
+  min_v: ${training.min_v}
+  max_v: ${training.max_v}
+  num_qs: 2
+
+oracle_critic_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  num_bins: ${training.num_bins}
+  min_v: ${training.min_v}
+  max_v: ${training.max_v}
+  num_qs: 2

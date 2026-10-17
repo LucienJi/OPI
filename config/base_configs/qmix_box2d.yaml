@@ -1,0 +1,98 @@
+# @package _global_
+defaults:
+  - /oracles/simba_based_oracle_args
+  - /oracles/mlp_based_oracle_args
+
+seed: 42
+save_video_fps: 30
+
+env:
+  mode: "learner"
+  stack_frames: 4
+  max_steps: 1000
+  seed: ${seed}
+
+training:
+  run_name: ${run_name}
+  checkpoint_dir: ./checkpoints/${run_name}
+  results_root_dir: ./results
+  seed: ${seed}
+  total_timesteps: 1000000
+  replay_dir: ./checkpoints/${run_name}/replay_buffer
+  capacity: 1000000
+  nstep: 1
+  discount: 0.99
+  tau: 0.005
+  save_episodes_to_disk: true
+
+  target_policy_noise: 0.1
+  task_specific_noise: 0.1
+
+  learner_learning_starts: 20000
+  learner_critic_utd_ratio: 2
+  learner_critic_batch_size: 1024
+  policy_delay: 2
+  policy_max_grad_norm: 1.0
+
+  normalize_observations: true
+  normalize_rewards: true
+  normalized_g_max: 5.0
+
+  min_exploration_noise: 0.01
+  max_exploration_noise: 0.2
+  clip_noise: 0.3
+  noise_clip: 0.3
+
+  oracle_std_multiplier: [0.2, 0.2, 0.2]
+
+  action_selection_buffer_size: 10000
+
+  num_bins: 101
+  min_v: -5.0
+  max_v: 5.0
+
+  actor_lr: 3e-4
+  critic_lr: 3e-4
+  actor_weight_decay: 1e-4
+  critic_weight_decay: 1e-4
+  max_grad_norm: 1.0
+
+  eval_every: 5000
+  eval_episodes: 5
+  save_freq: 20000
+  save_video: true
+  save_video_every: 100000
+  save_video_fps: ${save_video_fps}
+  resume: true
+  use_wandb: true
+  wandb_project_name: Box2D
+  wandb_entity: ${oc.env:WANDB_ENTITY,null}
+  wandb_group: ${method_name}
+  log_every: 500
+  keep_checkpoint_num: 3
+
+  use_compile: false
+  dynamo_cache_size_limit: 64
+
+rl_agent_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  noise_clip: ${training.noise_clip}
+
+rl_critic_args:
+  hidden_dim: 256
+  num_blocks: 2
+  scaler_init: 0.3
+  scaler_scale: 1.0
+  alpha_init: 0.3
+  alpha_scale: 1.0
+  c_shift: 4.0
+  num_bins: ${training.num_bins}
+  min_v: ${training.min_v}
+  max_v: ${training.max_v}
+  num_qs: 2

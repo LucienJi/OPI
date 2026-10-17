@@ -1,0 +1,23 @@
+# @package _global_
+defaults:
+  - /base_configs/qmix_dmc
+  - /oracles/dmc/cartpole_swingup_sparse
+  - _self_
+method_name: "QMP"
+
+seed: 42
+
+env:
+  domain_name: "cartpole"
+  task_name: "swingup_sparse"
+
+obs_config:
+  position: [3]
+  velocity: [2]
+
+run_name: ${method_name}_${env.domain_name}_${env.task_name}_seed${seed}
+
+training:
+  use_wandb: true
+  use_compile: true
+  save_video: true

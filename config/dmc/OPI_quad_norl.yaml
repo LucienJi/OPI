@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - /dmc/OPI_quad
+  - _self_
+
+method_name: "OPI_Quad_noRL"
+
+training:
+  reuse_action: true
+  rl_loss_weight: 0.0
+  awbc_magnitude_matching: false
+
+  total_timesteps: 500000
+
+  save_video: false
+  wandb_tags: ["ablation", "dmc_dense", "norl"]

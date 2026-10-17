@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+  - /box2d/OPI_bipedal_learner
+  - _self_
+
+method_name: "OPI_Bipedal_noRL"
+
+training:
+  reuse_action: true
+  rl_loss_weight: 0.0
+  awbc_magnitude_matching: false
+
+  save_video: false
+  wandb_tags: ["ablation", "box2d_dense", "norl"]

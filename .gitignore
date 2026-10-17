@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+/checkpoints/
+/eval/
+/outputs/
+/wandb/
+/Metaworld/

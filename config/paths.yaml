@@ -1,0 +1,2 @@
+# @package paths
+project_root: ${oc.env:ORACLES_PROJECT_ROOT,${hydra:runtime.cwd}}

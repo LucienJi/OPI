@@ -1,0 +1,32 @@
+# @package _global_
+defaults:
+  - /base_configs/OPI_box2d
+  - /oracles/box2d/bipedal_learner
+  - _self_
+
+method_name: "OPI_Bipedal_Learner"
+seed: 42
+
+env:
+  env_name: "bipedal"
+  mode: "learner"
+  stack_frames: 4
+  max_steps: 1500
+  seed: ${seed}
+
+obs_config:
+  state: [136]
+
+run_name: ${method_name}_${env.env_name}_${env.mode}_seed${seed}
+
+training:
+  reuse_action: false
+  n_oracles: 3
+
+rl_agent_args:
+  action_dim: 4
+  action_high: [1.0, 1.0, 1.0, 1.0]
+  action_low: [-1.0, -1.0, -1.0, -1.0]
+
+rl_critic_args:
+  action_dim: 4

@@ -1,0 +1,8 @@
+# @package _global_
+
+mlp_based_oracle_args:
+  action_high: 1.0
+  action_low: -1.0
+  hidden_size: 256
+  n_layers: 2
+  noise_clip: 1.0

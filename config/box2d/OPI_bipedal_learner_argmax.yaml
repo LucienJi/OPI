@@ -1,0 +1,14 @@
+# @package _global_
+defaults:
+  - /box2d/OPI_bipedal_learner
+  - _self_
+
+method_name: "OPI_Bipedal_argmax"
+
+training:
+  reuse_action: true
+  sampling_max_temperature: 1.0e-5
+  sampling_min_temperature: 1.0e-5
+
+  save_video: false
+  wandb_tags: ["ablation", "box2d_dense", "argmax"]
