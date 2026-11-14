@@ -161,7 +161,7 @@
                 <span class="logit-label">3 · Select</span>
                 <span class="logit-eq">\( \tilde A_{\mathrm{proxy}}(s,a)=\max_{k}\widehat S^{(k)}(s,a)-V_{\max}(s) \)</span>
                 <span class="logit-eq">\( \hat a_t\sim p_t(a)\propto\exp\!\bigl(\tilde A_{\mathrm{proxy}}(s_t,a)/\tau\bigr) \)</span>
-                <span class="logit-note">The scores \(\widehat S^{(k)}\) replace \(Q^{\pi_k}\) in the proxy; \(\tau\): temperature. The selected action can come from any actor, so control can switch at every step.</span>
+                <span class="logit-note">For selection, the scores \(\widehat S^{(k)}\) replace \(Q^{\pi_k}\) in the proxy; \(\tau\): temperature. The selected action can come from any actor, so control can switch at every step.</span>
               </div>
             </div>
             <div class="method-block-side">
@@ -189,7 +189,7 @@
               <div class="logit-card">
                 <span class="logit-label">1 · Weight replayed actions by advantage</span>
                 <span class="logit-eq">\( w(s,a)=\exp\!\bigl(\tilde A_{\mathrm{proxy}}(s,a)/\eta\bigr) \)</span>
-                <span class="logit-note">\(\tilde A_{\mathrm{proxy}}\) as in Search; \(\eta\): temperature; \(\mathcal D\): replay buffer.</span>
+                <span class="logit-note">\(\tilde A_{\mathrm{proxy}}\) as in the Foundation (no penalty); \(\eta\): temperature; \(\mathcal D\): replay buffer.</span>
               </div>
               <div class="logit-card key">
                 <span class="logit-label">2 · Imitate with these weights (GABC)</span>

@@ -225,7 +225,11 @@
   // ======================================================================
   // Preliminaries: who acts at each state, for three compositions
   // ======================================================================
-  function renderPrelim(host = byId("prelim-chart")) {
+  // opts.stacked (poster): each row's name and formula sit on one line above full-width cells.
+  // opts.legend === false drops the in-chart legend. The project page uses the defaults.
+  function renderPrelim(host = byId("prelim-chart"), opts = {}) {
+    const stacked = Boolean(opts.stacked);
+    const legend = opts.legend !== false;
     // acting oracle per state (0-based oracle index); "pick" marks action-level choices
     const ROWS = [
       { name: "Best oracle", eq: String.raw`\(\pi^*=\arg\max_{k} J(\pi_k)\)`, act: Array(N_S).fill(1), ret: 0.46, note: "one oracle for the whole episode" },
@@ -233,31 +237,39 @@
       { name: "Max-aggregation", eq: String.raw`\(\pi^{\max}(s)=\arg\max_{a}A_{\max}(s,a)\)`, act: [0, 0, 1, 1, 1, 2, 2, 2, 2], ret: 0.88, note: "the best action at each state", pick: [2, 5], ours: true },
     ];
     Viz.responsive(host, (width) => {
-      const W = Math.max(width, 820);
-      const lab = 350;
-      const retW = 120;
+      const W = Math.max(width, stacked ? 600 : 820);
+      const lab = stacked ? 0 : 350;
+      const retW = stacked ? 100 : 120;
       const Wg = W - retW;
-      const rh = 62;
+      const labH = stacked ? 36 : 0; // label line above the cells
+      const cellY = stacked ? labH : 6;
+      const cellH = stacked ? 38 : 46;
+      const rh = stacked ? labH + cellH + 10 : 62;
       const top = 4;
       const rows0 = top + 96;
-      const H = rows0 + ROWS.length * rh + 34;
+      const H = rows0 + ROWS.length * rh + (legend ? 34 : 4);
       const { svg, tex, done } = svgStage(host, W, H, "Which oracle acts at each state under best-oracle, max-following and max-aggregation, and the return each gets");
       const { cw, cx } = routeAxis(svg, tex, Wg, lab, top);
       tex(Wg + retW / 2 + 4, top + 44, "return", { cls: "ml-head" });
       ROWS.forEach((row, r) => {
         const y = rows0 + r * rh;
-        tex(0, y + 20, row.name, { cls: "pl-title small", align: "left", color: row.ours ? C.ours : C.ink });
-        tex(0, y + 44, row.eq, { cls: "ml-small", align: "left" });
+        if (stacked) {
+          tex(0, y + labH / 2, `<span class="pl-name" style="color:${row.ours ? C.ours : C.ink}">${row.name}</span><span class="pl-eq">${row.eq}</span>`, { cls: "pl-row", align: "left" });
+        } else {
+          tex(0, y + 20, row.name, { cls: "pl-title small", align: "left", color: row.ours ? C.ours : C.ink });
+          tex(0, y + 44, row.eq, { cls: "ml-small", align: "left" });
+        }
         row.act.forEach((k, i) => {
           const o = ROUTE.oracles[k];
-          Viz.el("rect", { x: lab + i * cw + 3, y: y + 6, width: cw - 6, height: rh - 16, rx: 6, fill: o.color, opacity: 0.88 }, svg);
-          if (row.pick && row.pick.includes(i)) Viz.el("rect", { x: lab + i * cw + 3, y: y + 6, width: cw - 6, height: rh - 16, rx: 6, fill: "none", stroke: C.ink, "stroke-width": 2.6 }, svg);
+          Viz.el("rect", { x: lab + i * cw + 3, y: y + cellY, width: cw - 6, height: cellH, rx: 6, fill: o.color, opacity: 0.88 }, svg);
+          if (row.pick && row.pick.includes(i)) Viz.el("rect", { x: lab + i * cw + 3, y: y + cellY, width: cw - 6, height: cellH, rx: 6, fill: "none", stroke: C.ink, "stroke-width": 2.6 }, svg);
         });
         // return bar (illustrative)
-        const bx = Wg + 14, bw = retW - 30;
-        Viz.el("rect", { x: bx, y: y + 16, width: bw, height: 18, rx: 4, fill: C.wash }, svg);
-        Viz.el("rect", { x: bx, y: y + 16, width: bw * row.ret, height: 18, rx: 4, fill: row.ours ? C.ours : C.ink2 }, svg);
+        const bx = Wg + 14, bw = retW - 30, by = stacked ? y + cellY + cellH / 2 - 9 : y + 16;
+        Viz.el("rect", { x: bx, y: by, width: bw, height: 18, rx: 4, fill: C.wash }, svg);
+        Viz.el("rect", { x: bx, y: by, width: bw * row.ret, height: 18, rx: 4, fill: row.ours ? C.ours : C.ink2 }, svg);
       });
+      if (!legend) { done(); return; }
       const leg = ROUTE.oracles.map((o) => `<span style="display:inline-flex;align-items:center;gap:5px;margin-right:14px"><i style="width:12px;height:12px;border-radius:3px;background:${o.color};display:inline-block"></i>${o.name}</span>`).join("");
       tex(lab, H - 14, `cell: whose action is executed &nbsp; ${leg}<span style="display:inline-flex;align-items:center;gap:5px"><i style="width:12px;height:12px;border:2.4px solid ${C.ink};border-radius:3px;display:inline-block"></i>another oracle's action</span>`, { cls: "ml-dim", align: "left" });
       done();
@@ -352,7 +364,7 @@
       redraw = () => {
         host.replaceChildren();
         if (fixed) { cap = node("p", "toy-caption"); }
-        cap.textContent = BP_CAPTION[mode];
+        cap.textContent = (opts.caption && opts.caption[mode]) || BP_CAPTION[mode];
         const { S, best, p } = bpScores(mode);
         const W = width;
         const lab = 138;
@@ -713,7 +725,7 @@
   window.OPI = {
     pipeline: (host) => renderPipeline(host),
     setting: (host) => renderSetting(host),
-    prelim: (host) => renderPrelim(host),
+    prelim: (host, opts) => renderPrelim(host, opts),
     proxy: (host, o) => renderProxy(host, o),
     search: (host, o) => renderBP(host, o),
     update: (host, o) => renderPI(host, o),
