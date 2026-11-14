@@ -2,6 +2,8 @@
 
 Code for the NeurIPS 2026 paper *Compose Your Oracles: Off Policy Improvement with Aggregated Guidance* (OPI) by Jingtian Ji, Xuefeng Liu, and Matthew R. Walter.
 
+**Project page:** https://lucienji.github.io/OPI/
+
 ## Installation
 
 Run these steps from the repository root.
