@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Compose Your Oracles: Off Policy Improvement with Aggregated Guidance</title>
+    <meta
+      name="description"
+      content="We propose Oracle-Aggregated Policy Improvement (OPI), an off-policy framework for policy improvement with multiple suboptimal oracles."
+    />
+    <link rel="canonical" href="https://lucienji.github.io/OPI/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://lucienji.github.io/OPI/" />
+    <meta property="og:title" content="Compose Your Oracles: Off Policy Improvement with Aggregated Guidance" />
+    <meta
+      property="og:description"
+      content="We propose Oracle-Aggregated Policy Improvement (OPI), an off-policy framework for policy improvement with multiple suboptimal oracles."
+    />
+    <script>
+      window.MathJax = { tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] }, svg: { fontCache: "global" } };
+    </script>
+    <!-- MathJax 3.2.2 (tex-svg), vendored so the page and its slide export work offline -->
+    <script defer src="assets/vendor/mathjax/tex-svg.js"></script>
+    <link rel="stylesheet" href="assets/css/site.css" />
+    <link rel="stylesheet" href="opi.css" />
+  </head>
+  <body class="page-opi">
+    <div class="top-nav">
+      <div class="container">
+        <a class="brand" href="#">OPI</a>
+        <nav aria-label="Sections">
+          <a href="#overview">Overview</a>
+          <a href="#method">Method</a>
+          <a href="#experiments">Experiments</a>
+          <a href="#ablations">Ablations</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="container hero">
+        <p class="venue">NeurIPS 2026</p>
+        <h1>
+          <span class="title-text">Compose Your Oracles:</span>
+          <span class="title-sub">Off Policy Improvement with Aggregated Guidance</span>
+        </h1>
+        <p class="authors">
+          <span>Jingtian Ji<sup>1</sup></span><span>Xuefeng Liu<sup>2</sup></span><span>Matthew R. Walter<sup>1</sup></span>
+        </p>
+        <p class="affiliations"><sup>1</sup>Toyota Technological Institute at Chicago &nbsp;·&nbsp; <sup>2</sup>University of Florida</p>
+        <nav class="paper-links" aria-label="Project links">
+          <span class="disabled-link" aria-disabled="true">Paper (soon)</span>
+          <a href="https://github.com/LucienJi/OPI">Code</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- ============================== Overview ============================== -->
+      <section class="section" id="overview" aria-labelledby="overview-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Overview</p>
+            <h2 id="overview-title">Search with the learner and all oracles, update from replay</h2>
+          </div>
+          <div class="pipeline card" id="pipeline"></div>
+        </div>
+      </section>
+
+      <!-- ============================== Method ============================== -->
+      <section class="section alt" id="method" aria-labelledby="method-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Method</p>
+            <h2 id="method-title">Oracle-Aggregated Policy Improvement (OPI)</h2>
+          </div>
+
+          <!-- Setting -->
+          <article class="mblock" id="setting">
+            <p class="finding-kicker">Setting</p>
+            <h3 class="finding-claim">One learner, several oracles, each good in different states</h3>
+            <div class="card fig-card"><div id="setting-chart"></div></div>
+            <div class="def-row">
+              <div class="logit-card">
+                <span class="logit-label">Oracles (here: three driving experts)</span>
+                <span class="logit-eq">\( \Pi=\{\pi_1,\dots,\pi_K\} \)</span>
+                <span class="logit-note">Black-box policies that we can only query for actions.</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">Value of a policy</span>
+                <span class="logit-eq">\( V^{\pi}(s)=\mathbb E_{\pi}\bigl[\textstyle\sum_{t}\gamma^t r_t\mid s_0=s\bigr] \)</span>
+                <span class="logit-eq">\( J(\pi)=\mathbb E_{s_0}\bigl[V^{\pi}(s_0)\bigr] \)</span>
+                <span class="logit-note">How well \(\pi\) does from \(s\) on, with reward \(r_t\) and discount \(\gamma\); \(J\): its expected return.</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">Goal</span>
+                <span class="logit-eq">\( J(\pi_\theta)\ \ge\ \max_k J(\pi_k) \)</span>
+                <span class="logit-note">A learner \(\pi_\theta\) that matches or beats every oracle in few environment steps.</span>
+              </div>
+            </div>
+          </article>
+
+          <!-- Preliminaries -->
+          <article class="mblock" id="prelim">
+            <p class="finding-kicker">Preliminaries</p>
+            <h3 class="finding-claim">Three ways to compose oracles</h3>
+            <div class="card fig-card"><div id="prelim-chart"></div></div>
+            <p class="takeaway">Max-following hands each state to the best oracle. Max-aggregation instead takes the best <b>action</b> at each state, assuming that from the next state on we follow whichever oracle is best there. This criterion is the max-advantage \(A_{\max}\), defined next.</p>
+          </article>
+
+          <!-- Foundation -->
+          <article class="mblock" id="foundation">
+            <p class="finding-kicker">Foundation</p>
+            <h3 class="finding-claim">From max-advantage to a tractable proxy</h3>
+            <div class="proxy-grid">
+              <ol class="chain">
+                <li>
+                  <p>Treat the learner and the oracles as <b>actors</b>.</p>
+                  <span class="logit-eq">\( \Pi^{\dagger}=\{\pi_0,\pi_1,\dots,\pi_K\},\quad \pi_0:=\pi_\theta \)</span>
+                </li>
+                <li>
+                  <p>Baseline: the best actor's value at \(s\).</p>
+                  <span class="logit-eq">\( V_{\max}(s)=\max_{k\in\{0,\dots,K\}}V^{\pi_k}(s) \)</span>
+                </li>
+                <li>
+                  <p>Max-advantage: the gain from taking \(a\), then following the best actor at the next state \(s'\).</p>
+                  <span class="logit-eq">\( A_{\max}(s,a)=r(s,a)+\gamma\,\mathbb E_{s'}\bigl[V_{\max}(s')\bigr]-V_{\max}(s) \)</span>
+                </li>
+                <li class="key">
+                  <p>\(\mathbb E_{s'}[V_{\max}(s')]\) is intractable. Instead, use the critic of each actor \(k\), \(Q^{\pi_k}(s,a)\): the value of taking \(a\), then following actor \(k\). Following one fixed actor is never better than following the best actor, so:</p>
+                  <span class="logit-eq">\( A_{\max}(s,a)\ \ge\ \max_{k}Q^{\pi_k}(s,a)-V_{\max}(s)=:\tilde A_{\mathrm{proxy}}(s,a) \)</span>
+                </li>
+                <li>
+                  <p>Why maximize it: with exact critics, always taking \(a^*=\arg\max_a\tilde A_{\mathrm{proxy}}(s,a)\) is no worse than \(V_{\max}\).</p>
+                </li>
+              </ol>
+              <div class="toy card" id="proxy-toy">
+                <div class="toy-head"><span class="schematic-tag">Schematic · one state \(s\), one action \(a\)</span></div>
+                <div id="proxy-chart"></div>
+                <p class="toy-caption">Following one fixed actor after \(a\) (bars) never beats switching to the best actor at \(s'\) (outline), so \(\tilde A_{\mathrm{proxy}}\le A_{\max}\).</p>
+              </div>
+            </div>
+          </article>
+
+          <!-- Search -->
+          <article class="method-block" id="bp-block">
+            <div class="method-block-text">
+              <p class="finding-kicker"><span class="kpill bp">Search</span>Oracle-guided behavior policy</p>
+              <h3 class="finding-claim">Use the oracles to search for good actions</h3>
+              <div class="logit-card">
+                <span class="logit-label">1 · Propose</span>
+                <span class="logit-eq">\( \mathcal C_t=\bigl\{(\pi_k,a^{k}_{t,j}) : a^{k}_{t,j}\sim\pi_k(\cdot\mid s_t)\bigr\}_{k=0..K,\ j=1..M} \)</span>
+                <span class="logit-note">Every actor, learner included, proposes \(M\) actions.</span>
+              </div>
+              <div class="logit-card key">
+                <span class="logit-label">2 · Source-aware score</span>
+                <span class="logit-eq">\( \widehat S^{(k)}(s,a)=\begin{cases}Q_k(s,a) & a\sim\pi_k\\ Q_k(s,a)-\alpha\,\sigma_k(s,a) & a\nsim\pi_k\end{cases} \)</span>
+                <span class="logit-note">\(Q_k,\ \sigma_k\): mean and standard deviation of critic ensemble \(k\), which estimates \(Q^{\pi_k}\); \(a\sim\pi_k\): \(a\) was proposed by \(\pi_k\); \(\alpha\): penalty weight.</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">3 · Select</span>
+                <span class="logit-eq">\( \tilde A_{\mathrm{proxy}}(s,a)=\max_{k}\widehat S^{(k)}(s,a)-V_{\max}(s) \)</span>
+                <span class="logit-eq">\( \hat a_t\sim p_t(a)\propto\exp\!\bigl(\tilde A_{\mathrm{proxy}}(s_t,a)/\tau\bigr) \)</span>
+                <span class="logit-note">The scores \(\widehat S^{(k)}\) replace \(Q^{\pi_k}\) in the proxy; \(\tau\): temperature. The selected action can come from any actor, so control can switch at every step.</span>
+              </div>
+            </div>
+            <div class="method-block-side">
+              <p class="goal-line bp">At each state, the learner and every oracle <mark>propose actions</mark>, and we <mark>execute the one with the highest <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span></mark>. A critic misjudges actions from other actors, so step 2 <mark>penalizes them</mark>.</p>
+            <div class="toy card" id="bp-toy">
+              <div class="toy-head">
+                <span class="schematic-tag">Schematic · a city street</span>
+                <div class="segmented" role="group" aria-label="Scoring" id="bp-mode">
+                  <button type="button" data-mode="aware" aria-pressed="true">With penalty</button>
+                  <button type="button" data-mode="raw" aria-pressed="false">Without penalty</button>
+                </div>
+              </div>
+              <div class="toy-legend"><span class="tl-item"><i class="tl-cell hatch"></i>penalized: another actor's action</span><span class="tl-item"><i class="tl-cell" style="border:2px solid var(--ink)"></i>highest score for that action; sets its selection probability</span></div>
+              <div id="bp-grid"></div>
+              <p class="toy-caption" id="bp-caption"></p>
+            </div>
+            </div>
+          </article>
+
+          <!-- Update -->
+          <article class="method-block reverse" id="pi-block">
+            <div class="method-block-text">
+              <p class="finding-kicker"><span class="kpill pi">Update</span>Oracle-guided policy improvement</p>
+              <h3 class="finding-claim">Use the oracles to update the learner</h3>
+              <div class="logit-card">
+                <span class="logit-label">1 · Weight replayed actions by advantage</span>
+                <span class="logit-eq">\( w(s,a)=\exp\!\bigl(\tilde A_{\mathrm{proxy}}(s,a)/\eta\bigr) \)</span>
+                <span class="logit-note">\(\tilde A_{\mathrm{proxy}}\) as in Search; \(\eta\): temperature; \(\mathcal D\): replay buffer.</span>
+              </div>
+              <div class="logit-card key">
+                <span class="logit-label">2 · Imitate with these weights (GABC)</span>
+                <span class="logit-eq">\( \mathcal L_{\mathrm{GABC}}(\theta)=\mathbb E_{(s,a)\sim\mathcal D}\bigl[w(s,a)\,\|a-\pi_\theta(s)\|^2\bigr] \)</span>
+                <span class="logit-note">GABC: generalized advantage-weighted behavior cloning. Plain behavior cloning (BC) uses \(w=1\).</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">3 · Climb the learner's critic (DPG)</span>
+                <span class="logit-eq">\( \mathcal L_{\mathrm{RL}}(\theta)=-\mathbb E_{s\sim\mathcal D}\bigl[Q^{\pi_\theta}\bigl(s,\pi_\theta(s)\bigr)\bigr] \)</span>
+                <span class="logit-note">DPG: deterministic policy gradient. \(Q^{\pi_\theta}=Q_0\), the learner's critic.</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">Training objective</span>
+                <span class="logit-eq">\( \mathcal L(\theta)=\mathcal L_{\mathrm{RL}}(\theta)+\lambda\,\mathcal L_{\mathrm{GABC}}(\theta) \)</span>
+                <span class="logit-note">\(\lambda\): GABC weight.</span>
+              </div>
+            </div>
+            <div class="method-block-side">
+              <p class="goal-line pi">The learner <mark>imitates replayed actions in proportion to their <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span></mark> (GABC), then <mark>improves beyond them with its own critic</mark> (DPG). The updated learner <mark>joins the next search</mark> as <span class="nb">\(\pi_0\).</span></p>
+            <div class="toy card" id="pi-toy">
+              <div class="toy-head">
+                <span class="schematic-tag">Schematic · one state \(s\)</span>
+                <div class="segmented" role="group" aria-label="Learner objective" id="pi-mode">
+                  <button type="button" data-mode="bc" aria-pressed="false">Plain BC</button>
+                  <button type="button" data-mode="gabc" aria-pressed="false">GABC</button>
+                  <button type="button" data-mode="both" aria-pressed="true">GABC + DPG</button>
+                </div>
+              </div>
+              <div class="toy-legend"><span class="tl-item"><i class="tl-dot" style="background:var(--learner)"></i><i class="tl-dot" style="background:var(--oracle1)"></i><i class="tl-dot" style="background:var(--oracle2)"></i><i class="tl-dot" style="background:var(--oracle3)"></i>replayed action, colored by the actor that proposed it</span></div>
+              <div id="pi-chart"></div>
+              <p class="toy-caption" id="pi-caption"></p>
+            </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================== Experiments ============================== -->
+      <section class="section" id="experiments" aria-labelledby="exp-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Experiments</p>
+            <h2 id="exp-title">19 tasks, 6 baselines</h2>
+          </div>
+          <div class="setup-row" id="setup-row"></div>
+          <div class="metric-row">
+            <div class="card-stack">
+              <div class="logit-card">
+                <span class="logit-label">NAUC: normalized area under the learning curve</span>
+                <span class="logit-eq">\( \mathrm{NAUC}=\frac{1}{T}\int_0^T \mathrm{perf}(t)\,dt \)</span>
+                <span class="logit-note">\(\mathrm{perf}(t)\): success rate (or return on Hopper-Hop and Quadruped-Run) after \(t\) environment steps; \(T\): step budget, the same for all methods. Higher NAUC means better sample efficiency.</span>
+              </div>
+              <div class="logit-card">
+                <span class="logit-label">Final performance</span>
+                <span class="logit-eq">\( \mathrm{perf}(T) \)</span>
+                <span class="logit-note">Performance at the end of training.</span>
+              </div>
+            </div>
+            <div class="toy card"><div class="toy-head"><span class="schematic-tag">Schematic</span></div><div id="metric-chart"></div><p class="toy-caption">The gray learner reaches the same final performance but learns more slowly, so its NAUC is smaller.</p></div>
+          </div>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">Q1</span>Sparse rewards</p>
+            <p class="q-ask">Does OPI learn faster when rewards are sparse?</p>
+            <h3 class="q-answer">Best NAUC and 100% final success on all four sparse tasks in Table 1.</h3>
+            <figure class="chart-card" id="card-sparse">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title" id="sparse-title"></h4><p class="chart-sub">Mean over 5 seeds, Table 1. Switch to Final for the final success rate.</p></div>
+                <div class="segmented metric-toggle" role="group" aria-label="Metric" data-target="sparse">
+                  <button type="button" data-metric="nauc" aria-pressed="true">NAUC</button>
+                  <button type="button" data-metric="final" aria-pressed="false">Final</button>
+                </div>
+              </div>
+              <div class="sm4" id="chart-sparse"></div>
+            </figure>
+          </article>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">Q2</span>Dense rewards</p>
+            <p class="q-ask">And when rewards are dense?</p>
+            <h3 class="q-answer">Best NAUC on 2 of 4 dense tasks, close on the other two.</h3>
+            <figure class="chart-card" id="card-dense">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title" id="dense-title"></h4><p class="chart-sub">Mean over 5 seeds, Table 2.</p></div>
+                <div class="segmented metric-toggle" role="group" aria-label="Metric" data-target="dense">
+                  <button type="button" data-metric="nauc" aria-pressed="true">NAUC</button>
+                  <button type="button" data-metric="final" aria-pressed="false">Final</button>
+                </div>
+              </div>
+              <div class="sm4" id="chart-dense"></div>
+            </figure>
+          </article>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">Q3</span>Composition</p>
+            <p class="q-ask">Can OPI beat every single oracle?</p>
+            <h3 class="q-answer">OPI beats the best single oracle on all six success-rate tasks.</h3>
+            <figure class="chart-card" id="card-comp">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title">Final success rate (%)</h4><p class="chart-sub">Oracles: Appendix A; OPI: Tables 1–2.</p></div>
+              </div>
+              <div class="legend" id="comp-legend"></div>
+              <div class="chart" id="chart-comp"></div>
+            </figure>
+          </article>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">Q4</span>Actor selection</p>
+            <p class="q-ask">Does the learner take over from the oracles?</p>
+            <h3 class="q-answer">Yes: OPI selects its own learner more and more often.</h3>
+            <figure class="chart-card" id="card-sel">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title">OPI: share of executed actions during training</h4><p class="chart-sub">Two sparse-reward tasks, Fig. 2.</p></div>
+              </div>
+              <div class="legend" id="sel-legend"></div>
+              <div class="fig-pair" id="sel-figs"></div>
+            </figure>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============================== Ablations ============================== -->
+      <section class="section alt" id="ablations" aria-labelledby="abl-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow">Ablations</p>
+            <h2 id="abl-title">What each component contributes</h2>
+          </div>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">A1</span>Components</p>
+            <p class="q-ask">What if we remove source-aware scoring, DPG, or sampling (always executing the top-scoring candidate instead)?</p>
+            <h3 class="q-answer">Each removal lowers performance.</h3>
+            <div class="kpi-row abl-kpis" id="abl-kpis"></div>
+            <figure class="chart-card" id="card-abl">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title">NAUC relative to full OPI (%)</h4><p class="chart-sub">8 tasks, 5 seeds, Table 3.</p></div>
+              </div>
+              <div class="legend" id="abl-legend"></div>
+              <div class="chart" id="chart-abl"></div>
+            </figure>
+          </article>
+
+          <article class="qblock">
+            <p class="q-kicker"><span class="q-num">A2</span>Exploration and GABC</p>
+            <p class="q-ask">Does oracle-guided search beat scheduled exploration? Is GABC needed?</p>
+            <h3 class="q-answer">Scheduled exploration often wastes samples on suboptimal oracles; GABC is key with sparse rewards.</h3>
+            <figure class="chart-card" id="card-abl2">
+              <div class="chart-card-head">
+                <div><h4 class="chart-title">Return / success rate (SR) during training</h4><p class="chart-sub">Fig. 3.</p></div>
+              </div>
+              <div class="legend" id="abl2-legend"></div>
+              <div class="fig-trio">
+                <figure><figcaption>Quadruped-Run <span style="font-weight:400;color:var(--muted)">(OPI and w/o GABC overlap)</span></figcaption><img src="media/figures/abl_quadruped_run.svg" width="583" height="382" loading="lazy" alt="Quadruped-Run: OPI, w/o GABC and scheduled exploration learning curves." /></figure>
+                <figure><figcaption>Push-Wall-Sparse</figcaption><img src="media/figures/abl_push-wall-v3.svg" width="583" height="382" loading="lazy" alt="Push-Wall-Sparse: OPI reaches 100% early; scheduled exploration is slower; w/o GABC stays at 0." /></figure>
+                <figure><figcaption>Assembly-Sparse</figcaption><img src="media/figures/abl_assembly-v3.svg" width="583" height="382" loading="lazy" alt="Assembly-Sparse: scheduled exploration is comparable to OPI; w/o GABC stays low." /></figure>
+              </div>
+            </figure>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">Compose Your Oracles: Off Policy Improvement with Aggregated Guidance · NeurIPS 2026</div>
+    </footer>
+
+    <script src="assets/js/charts.js"></script>
+    <script src="assets/js/site.js"></script>
+    <script src="data/results.js"></script>
+    <script src="opi.js"></script>
+  </body>
+</html>

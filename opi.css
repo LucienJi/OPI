@@ -1,0 +1,209 @@
+/* OPI page. Ours = the paper's OPI blue; actors follow the paper's actor-selection
+   figure (learner blue, oracle 1 orange, oracle 2 green). Component colors:
+   behavior policy = deep blue, policy improvement = violet.
+   Shared chrome (hero, sections, cards, chips, logit cards, step numbers) lives in site.css. */
+.page-opi {
+  --ours: #4e79a7;
+  --ours-ink: #2f5d8f;
+  --learner: #4e79a7;
+  --oracle1: #f28e2b;
+  --oracle2: #59a14f;
+  --oracle3: #b07aa1;
+  --bp: #34495e;
+  --bp-wash: rgba(52, 73, 94, 0.08);
+  --pi: #6a4ca8;
+  --pi-wash: rgba(106, 76, 168, 0.08);
+}
+
+.venue { margin-bottom: 18px; }
+.affiliations { font-size: 0.95rem; }
+
+/* ---------- method: pipeline + numbered step + one block per component ---------- */
+#method .pipeline { padding: 18px 20px; overflow-x: auto; }
+.pipeline .svg-stage > svg { display: block; }
+
+.proxy-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+.card-stack { display: flex; flex-direction: column; gap: 12px; }
+.card-stack .logit-card { margin-top: 0; }
+.logit-card.key { border-color: var(--line-strong); box-shadow: inset 4px 0 0 var(--ours); }
+.logit-eq { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+
+.toy { padding: 16px 18px; }
+.toy-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.toy-head .schematic-tag { white-space: nowrap; }
+.toy-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 4px 0 8px; color: var(--ink-2); font-size: 0.86rem; }
+.tl-item { display: inline-flex; align-items: center; gap: 7px; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; }
+.tl-cell { width: 16px; height: 12px; border: 1px solid var(--line-strong); border-radius: 3px; background: #fff; }
+.tl-cell.hatch { background: repeating-linear-gradient(135deg, #f1f0ea 0 3px, #dddcd3 3px 5px); }
+.toy-caption { margin: 10px 0 0; color: var(--ink-2); font-size: 0.9rem; line-height: 1.45; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chips .chip { min-height: 30px; padding: 2px 12px; font-size: 0.86rem; }
+
+.finding-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: var(--muted); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.fk-num { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 8px; border-radius: 999px; background: var(--ours); color: #fff; font-size: 0.85rem; letter-spacing: 0.02em; }
+.fk-num.bp { background: var(--bp); }
+.fk-num.pi { background: var(--pi); }
+.finding-claim { max-width: 980px; margin: 0 0 22px; color: var(--ink); font-size: clamp(1.35rem, 2.4vw, 1.8rem); font-weight: 780; line-height: 1.18; letter-spacing: -0.01em; }
+
+.method-block { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 28px; align-items: start; margin-top: 64px; }
+.method-block .method-block-text { padding-top: 18px; }
+.method-block .logit-card + .logit-card { margin-top: 12px; }
+.method-block.reverse { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+.method-block.reverse .method-block-text { order: 2; }
+#bp-block .logit-card.key, #bp-block .logit-card:first-of-type { box-shadow: inset 4px 0 0 var(--bp); }
+#pi-block .logit-card.key { box-shadow: inset 4px 0 0 var(--pi); }
+
+/* TeX labels layered over SVG schematics (same mechanism as the ProAct page) */
+.svg-stage { position: relative; }
+.svg-stage > svg { display: block; overflow: visible; }
+.math-layer { position: absolute; inset: 0; pointer-events: none; }
+.mlabel { position: absolute; white-space: nowrap; line-height: 1; transform: translate(-50%, -50%); }
+.mlabel.left { transform: translate(0, -50%); }
+.mlabel.right { transform: translate(-100%, -50%); }
+.mlabel mjx-container { margin: 0 !important; }
+.pl-sub { color: var(--ink-2); font-size: 15px; }
+.pl-pill { font-size: 14.5px; font-weight: 600; }
+.pl-pill b { font-weight: 800; letter-spacing: 0.02em; }
+.ml-cell { font-size: 14px; color: var(--ink); }
+.ml-dim { color: var(--muted); font-size: 13px; }
+.ml-head { font-size: 14px; font-weight: 700; color: var(--ink-2); }
+.ml-big { font-size: 16px; color: var(--ink); }
+
+@media (max-width: 1000px) {
+  .proxy-grid, .method-block, .method-block.reverse { grid-template-columns: minmax(0, 1fr); }
+  .method-block.reverse .method-block-text { order: 0; }
+  .toy-head { flex-wrap: wrap; }
+}
+
+/* ---------- v2: overview, preliminaries, search / update pills ---------- */
+#overview .pipeline { padding: 22px 24px 14px; overflow-x: auto; }
+.pipe-legend { margin: 6px 0 0; }
+.mblock { margin-top: 64px; }
+.mblock:first-of-type { margin-top: 8px; }
+.kpill { display: inline-block; padding: 4px 12px; border-radius: 999px; color: #fff; font-size: 0.78rem; letter-spacing: 0.08em; }
+.kpill.bp { background: var(--bp); }
+.kpill.pi { background: var(--pi); }
+
+.prelim-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.prelim-card { display: flex; flex-direction: column; gap: 6px; padding: 16px 18px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.prelim-card.ours { border-color: var(--line-strong); box-shadow: inset 0 4px 0 var(--ours); }
+.prelim-name { font-weight: 760; font-size: 1.02rem; }
+.prelim-eq { min-height: 56px; font-size: 0.98rem; line-height: 1.7; overflow-x: auto; }
+.prelim-gloss { color: var(--muted); font-size: 0.9rem; }
+.prelim-legend { margin-top: 12px; }
+.tl-line2 { display: inline-block; width: 22px; border-top: 2px solid currentColor; }
+.tl-line2.thick { border-top-width: 4px; }
+.tl-line2.dash { border-top-style: dashed; }
+
+/* ---------- experiments and ablations: question blocks ---------- */
+.setup-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.4fr); gap: 12px; margin-bottom: 8px; }
+.setup-tile { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.setup-tile b { display: block; font-size: 1.9rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.setup-tile span { color: var(--muted); font-size: 0.88rem; }
+.setup-tile .chips { margin-top: 8px; }
+.setup-tile .chip { min-height: 26px; padding: 1px 10px; font-size: 0.8rem; cursor: default; }
+.setup-tile .chip.ours-like { border-color: var(--ink); }
+
+.qblock { margin-top: 64px; }
+.qblock:first-of-type { margin-top: 40px; }
+.q-kicker { display: flex; align-items: center; gap: 10px; margin: 0 0 6px; color: var(--muted); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.q-num { display: inline-grid; place-items: center; min-width: 34px; height: 30px; padding: 0 8px; border-radius: 999px; background: var(--ink); color: #fff; font-size: 0.82rem; letter-spacing: 0.02em; }
+.q-ask { margin: 0; color: var(--muted); font-size: 1.05rem; }
+.q-answer { max-width: 1000px; margin: 4px 0 18px; color: var(--ink); font-size: clamp(1.4rem, 2.6vw, 1.95rem); font-weight: 780; line-height: 1.18; letter-spacing: -0.01em; }
+.chart-card-head .segmented { flex: none; }
+.chart-card-head .segmented button { padding: 4px 12px; font-size: 0.84rem; }
+
+.sm4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px 26px; margin-top: 6px; }
+.sm4 h5 { margin: 0 0 2px; font-size: 0.95rem; font-weight: 740; }
+.sm4 .sm-unit { margin: 0; color: var(--muted); font-size: 0.78rem; }
+
+.fig-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 6px; }
+.fig-pair figure, .fig-trio figure { margin: 0; }
+.fig-pair figcaption, .fig-trio figcaption { margin: 0 0 4px; font-weight: 740; font-size: 0.95rem; }
+.fig-pair img, .fig-trio img { width: 100%; height: auto; }
+.fig-trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-top: 6px; }
+.legend .ls-line { display: inline-block; width: 20px; border-top: 3px solid currentColor; vertical-align: middle; margin-right: 7px; }
+.legend .ls-line.dash { border-top-style: dashed; border-top-width: 2px; }
+
+.abl-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 14px; }
+.abl-kpis .kpi-value { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1000px) {
+  .prelim-grid, .setup-row, .fig-pair, .fig-trio { grid-template-columns: minmax(0, 1fr); }
+  .sm4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* labels inside schematics */
+.pl-title { color: var(--ink); font-size: 17px; font-weight: 750; }
+.pl-title.small { font-size: 15px; }
+.pl-math { color: var(--ink-2); font-size: 16px; }
+.pl-note { font-size: 14.5px; font-weight: 650; }
+.pl-pill { font-size: 15px; font-weight: 600; }
+.ml-small { font-size: 14px; }
+.ml-head { color: var(--ink-2); font-size: 14px; font-weight: 700; }
+.ml-tag { font-size: 14px; font-weight: 800; letter-spacing: 0.02em; }
+.mlabel.rot { transform: translate(-50%, -50%) rotate(-90deg); }
+
+.mlabel.bg { padding: 1px 4px; background: var(--surface); border-radius: 4px; }
+
+/* review fixes */
+.kpill { white-space: nowrap; }
+.chart-card-head { align-items: center; }
+.setup-row { grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.7fr); }
+.setup-tile .chips { gap: 5px; }
+.fig-pair { max-width: 940px; margin-left: auto; margin-right: auto; }
+#chart-abl { overflow-x: auto; }
+@media (max-width: 600px) {
+  .chart-card-head { flex-direction: column; align-items: flex-start; }
+  .abl-kpis { grid-template-columns: minmax(0, 1fr); }
+  .setup-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* ---------- v3: setting, chain, metrics ---------- */
+.fig-card { padding: 18px 20px 14px; overflow-x: auto; }
+.def-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.def-row .logit-card { margin-top: 0; }
+.takeaway { margin: 14px 0 0; color: var(--ink-2); font-size: 1.02rem; }
+.takeaway b { color: var(--ink); }
+.chain { counter-reset: step; list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.chain li { counter-increment: step; position: relative; padding: 12px 16px 12px 52px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.chain li::before { content: counter(step); position: absolute; left: 14px; top: 12px; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--wash); color: var(--ink-2); font-size: 0.82rem; font-weight: 800; }
+.chain li.key { box-shadow: inset 4px 0 0 var(--ours); border-color: var(--line-strong); }
+.chain li.key::before { background: var(--ours); color: #fff; }
+.chain p { margin: 0 0 4px; color: var(--ink-2); font-size: 0.95rem; line-height: 1.45; }
+.chain li:last-child p { margin: 0; }
+.metric-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; margin-top: 14px; }
+.segmented button { white-space: nowrap; }
+@media (max-width: 1000px) { .def-row, .metric-row { grid-template-columns: minmax(0, 1fr); } }
+
+/* equal-height columns: card tops align with the kicker, bottoms align with the last card */
+.method-block, .proxy-grid { align-items: stretch; }
+.method-block .method-block-text { padding-top: 0; display: flex; flex-direction: column; }
+.method-block .method-block-text > .logit-card:last-child { flex-grow: 1; }
+.method-block .toy, .proxy-grid .toy { display: flex; flex-direction: column; }
+#bp-grid, #pi-chart, #proxy-chart { margin-top: auto; margin-bottom: auto; }
+.method-block .toy-caption, .proxy-grid .toy-caption { margin-top: 12px; }
+.chain { height: 100%; }
+.chain li:last-child { flex-grow: 1; }
+
+.goal-line { margin: -8px 0 18px; color: var(--ink-2); font-size: 1.02rem; line-height: 1.5; }
+.goal-line b { color: var(--ink); }
+
+.nb { white-space: nowrap; }
+
+/* the opening sentence sits above the schematic, so both columns end level */
+.method-block-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.method-block-side .goal-line { margin: 0; }
+.method-block-side .toy { flex: 1; }
+.method-block .method-block-text > .logit-card:last-child { align-content: start; }
+
+/* key phrases in the two opening sentences: bold ink on a soft marker in the component tint */
+.method-block-side .goal-line { font-size: 1.08rem; color: var(--ink-2); }
+.goal-line mark { color: var(--ink); font-weight: 700; background: none; padding: 0; }
+
+/* Phones: wide schematics and long formulas scroll inside their card instead of widening the page */
+@media (max-width: 720px) {
+  .logit-eq { display: block; max-width: 100%; }
+  :has(> .svg-stage) { overflow-x: auto; }
+}
