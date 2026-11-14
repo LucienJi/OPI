@@ -165,7 +165,7 @@
               </div>
             </div>
             <div class="method-block-side">
-              <p class="goal-line bp">At each state, the learner and every oracle <mark>propose actions</mark>, and we <mark>execute the one with the highest <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span></mark>. A critic misjudges actions from other actors, so step 2 <mark>penalizes them</mark>.</p>
+              <p class="goal-line bp">At each state, the learner and every oracle <mark>propose actions</mark>, and we <mark>sample the action to execute by its <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span></mark>. A critic misjudges actions from other actors, so step 2 <mark>penalizes them</mark>.</p>
             <div class="toy card" id="bp-toy">
               <div class="toy-head">
                 <span class="schematic-tag">Schematic · a city street</span>
@@ -189,7 +189,7 @@
               <div class="logit-card">
                 <span class="logit-label">1 · Weight replayed actions by advantage</span>
                 <span class="logit-eq">\( w(s,a)=\exp\!\bigl(\tilde A_{\mathrm{proxy}}(s,a)/\eta\bigr) \)</span>
-                <span class="logit-note">\(\tilde A_{\mathrm{proxy}}\) as in the Foundation (no penalty); \(\eta\): temperature; \(\mathcal D\): replay buffer.</span>
+                <span class="logit-note">\(\eta\): temperature; \(\mathcal D\): replay buffer.</span>
               </div>
               <div class="logit-card key">
                 <span class="logit-label">2 · Imitate with these weights (GABC)</span>
@@ -204,11 +204,11 @@
               <div class="logit-card">
                 <span class="logit-label">Training objective</span>
                 <span class="logit-eq">\( \mathcal L(\theta)=\mathcal L_{\mathrm{RL}}(\theta)+\lambda\,\mathcal L_{\mathrm{GABC}}(\theta) \)</span>
-                <span class="logit-note">\(\lambda\): GABC weight.</span>
+                <span class="logit-note">Both losses are minimized together on batches from \(\mathcal D\); \(\lambda\) balances imitation (GABC) and improvement (DPG).</span>
               </div>
             </div>
             <div class="method-block-side">
-              <p class="goal-line pi">The learner <mark>imitates replayed actions in proportion to their <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span></mark> (GABC), then <mark>improves beyond them with its own critic</mark> (DPG). The updated learner <mark>joins the next search</mark> as <span class="nb">\(\pi_0\).</span></p>
+              <p class="goal-line pi">The learner trains on the replay buffer \(\mathcal D\) with two losses: <mark>GABC</mark> imitates stored actions, weighting those with a higher <span class="nb">\(\tilde A_{\mathrm{proxy}}\)</span> more; <mark>DPG</mark> moves its actions toward a higher value of its own critic. The updated learner then <mark>joins the next search</mark> as <span class="nb">\(\pi_0\).</span></p>
             <div class="toy card" id="pi-toy">
               <div class="toy-head">
                 <span class="schematic-tag">Schematic · one state \(s\)</span>
@@ -270,7 +270,7 @@
           <article class="qblock">
             <p class="q-kicker"><span class="q-num">Q2</span>Dense rewards</p>
             <p class="q-ask">And when rewards are dense?</p>
-            <h3 class="q-answer">Best NAUC on 2 of 4 dense tasks, close on the other two.</h3>
+            <h3 class="q-answer">Competitive on dense tasks, with the best NAUC on two of four.</h3>
             <figure class="chart-card" id="card-dense">
               <div class="chart-card-head">
                 <div><h4 class="chart-title" id="dense-title"></h4><p class="chart-sub">Mean over 5 seeds, Table 2.</p></div>
@@ -285,8 +285,8 @@
 
           <article class="qblock">
             <p class="q-kicker"><span class="q-num">Q3</span>Composition</p>
-            <p class="q-ask">Can OPI beat every single oracle?</p>
-            <h3 class="q-answer">OPI beats the best single oracle on all six success-rate tasks.</h3>
+            <p class="q-ask">Can OPI beat the best single oracle?</p>
+            <h3 class="q-answer">OPI beats the best single oracle.</h3>
             <figure class="chart-card" id="card-comp">
               <div class="chart-card-head">
                 <div><h4 class="chart-title">Final success rate (%)</h4><p class="chart-sub">Oracles: Appendix A; OPI: Tables 1–2.</p></div>
