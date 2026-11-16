@@ -207,3 +207,6 @@
   .logit-eq { display: block; max-width: 100%; }
   :has(> .svg-stage) { overflow-x: auto; }
 }
+
+/* narrated talk video at the top of the overview */
+.talk-video { max-width: 980px; margin: 0 auto 40px; scroll-margin-top: 24px; }

@@ -51,6 +51,7 @@
         <nav class="paper-links" aria-label="Project links">
           <span class="disabled-link" aria-disabled="true">Paper (soon)</span>
           <a href="https://github.com/LucienJi/OPI">Code</a>
+          <a href="#talk">Video</a>
         </nav>
       </div>
     </header>
@@ -59,6 +60,12 @@
       <!-- ============================== Overview ============================== -->
       <section class="section" id="overview" aria-labelledby="overview-title">
         <div class="container">
+          <div class="video-frame overview-video talk-video" id="talk">
+            <video controls preload="metadata" playsinline poster="media/opi_talk_poster.jpg" aria-label="Narrated talk, 5 minutes">
+              <source src="media/opi_talk.mp4" type="video/mp4" />
+              <track kind="captions" srclang="en" label="English" src="media/opi_talk.en.vtt" />
+            </video>
+          </div>
           <div class="section-head">
             <p class="eyebrow">Overview</p>
             <h2 id="overview-title">Search with the learner and all oracles, update from replay</h2>
@@ -232,7 +239,7 @@
         <div class="container">
           <div class="section-head">
             <p class="eyebrow">Experiments</p>
-            <h2 id="exp-title">19 tasks, 6 baselines</h2>
+            <h2 id="exp-title">Environments, baselines and metrics</h2>
           </div>
           <div class="setup-row" id="setup-row"></div>
           <div class="metric-row">

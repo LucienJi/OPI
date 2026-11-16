@@ -1,0 +1,262 @@
+WEBVTT
+
+1
+00:00:00.800 --> 00:00:07.307
+This is OPI, an off-policy method that lets a learner compose several imperfect oracles.
+
+2
+00:00:07.587 --> 00:00:08.867
+First, the setting.
+
+3
+00:00:09.767 --> 00:00:13.564
+Imagine a route through a highway, a city, and rural roads.
+
+4
+00:00:13.844 --> 00:00:19.092
+We have three oracles: a highway expert, a city expert, and a rural expert.
+
+5
+00:00:19.372 --> 00:00:22.508
+Each one is good only on its own part of the route.
+
+6
+00:00:22.788 --> 00:00:29.252
+In the chart, a darker cell means a higher value: how well that policy does from that state on.
+
+7
+00:00:29.532 --> 00:00:34.695
+We want a learner that matches or beats every oracle, with few environment steps.
+
+8
+00:00:34.975 --> 00:00:36.809
+So how can we combine them?
+
+9
+00:00:37.709 --> 00:00:41.827
+The best-oracle policy runs one oracle for the whole episode.
+
+10
+00:00:42.107 --> 00:00:47.419
+Max-following does better: it hands each state to the oracle with the highest value.
+
+11
+00:00:47.699 --> 00:00:57.640
+Max-aggregation goes further: it takes the best action at each state, assuming that from the next state on, we follow whichever oracle is best there.
+
+12
+00:00:57.920 --> 00:01:00.395
+OPI builds on max-aggregation.
+
+13
+00:01:01.295 --> 00:01:06.927
+First, we treat the learner and the oracles as actors, so the learner can later take over.
+
+14
+00:01:07.207 --> 00:01:11.473
+The baseline is V-max, the value of the best actor at each state.
+
+15
+00:01:11.753 --> 00:01:20.031
+The max-advantage of an action is the gain over V-max from taking that action, then following the best actor at the next state.
+
+16
+00:01:20.311 --> 00:01:23.297
+But we cannot compute the max-advantage directly.
+
+17
+00:01:24.197 --> 00:01:27.653
+The expected V-max at the next state is intractable.
+
+18
+00:01:27.933 --> 00:01:32.840
+Instead, each actor has a critic, a learned estimate of that actor's return.
+
+19
+00:01:33.120 --> 00:01:43.680
+Following one fixed actor is never better than following the best actor, so the largest critic value minus V-max is a lower bound on the max-advantage.
+
+20
+00:01:43.960 --> 00:01:46.328
+We call this bound the proxy advantage.
+
+21
+00:01:46.608 --> 00:01:53.477
+With exact critics, always taking the action with the highest proxy advantage is no worse than V-max.
+
+22
+00:01:53.757 --> 00:01:57.427
+OPI uses this proxy advantage in two steps.
+
+23
+00:01:58.327 --> 00:02:06.903
+In search, the learner and the oracles propose actions, and OPI samples the action to execute by its proxy advantage.
+
+24
+00:02:07.183 --> 00:02:13.881
+In update, the learner imitates the actions stored in a replay buffer, weighted by their proxy advantage.
+
+25
+00:02:14.161 --> 00:02:16.956
+Then the updated learner joins the next search.
+
+26
+00:02:17.236 --> 00:02:18.431
+First, search.
+
+27
+00:02:19.331 --> 00:02:24.365
+At each state, every actor proposes actions, and every critic scores them.
+
+28
+00:02:24.645 --> 00:02:27.781
+A critic scores its own actor's actions directly.
+
+29
+00:02:28.061 --> 00:02:32.541
+For other actors' actions, the critic subtracts an uncertainty penalty.
+
+30
+00:02:32.821 --> 00:02:34.827
+This is the source-aware score.
+
+31
+00:02:35.107 --> 00:02:38.371
+OPI then samples an action by these scores.
+
+32
+00:02:38.651 --> 00:02:44.539
+On this city street, the city expert's action is the most likely, at 65 percent.
+
+33
+00:02:44.819 --> 00:02:46.440
+Why do we need the penalty?
+
+34
+00:02:47.340 --> 00:02:52.545
+Without the penalty, the learner's critic over-values an unfamiliar highway action.
+
+35
+00:02:52.825 --> 00:02:58.820
+Here, OPI would then pick the highway action on a city street 86 percent of the time.
+
+36
+00:02:59.100 --> 00:03:00.636
+Next, the update step.
+
+37
+00:03:01.536 --> 00:03:07.595
+To train the learner, plain behavior cloning would copy every replayed action, good or bad.
+
+38
+00:03:07.875 --> 00:03:10.115
+Instead, we weight the replayed actions.
+
+39
+00:03:11.015 --> 00:03:21.788
+GABC, generalized advantage-weighted behavior cloning, weights each action by its proxy advantage, so the learner mostly copies the good ones.
+
+40
+00:03:22.068 --> 00:03:24.073
+But the learner can do even better.
+
+41
+00:03:24.973 --> 00:03:35.320
+On top of GABC, a deterministic policy gradient, or DPG, climbs the learner's own critic, and moves the learner beyond the data.
+
+42
+00:03:35.600 --> 00:03:37.776
+Lambda balances the two losses.
+
+43
+00:03:38.056 --> 00:03:40.147
+Now, does this work in practice?
+
+44
+00:03:41.047 --> 00:03:51.415
+We evaluate OPI on manipulation tasks from MetaWorld, locomotion tasks from DeepMind Control, and custom Box2D control tasks.
+
+45
+00:03:51.695 --> 00:03:57.860
+The baselines include Max-V and Max-Q, which imitate max-following and max-aggregation.
+
+46
+00:03:58.140 --> 00:03:59.697
+We report two metrics.
+
+47
+00:03:59.977 --> 00:04:05.695
+NAUC is the normalized area under the learning curve, so it rewards fast learning.
+
+48
+00:04:05.975 --> 00:04:08.535
+We also report the final performance.
+
+49
+00:04:08.815 --> 00:04:10.521
+First, sparse rewards.
+
+50
+00:04:11.421 --> 00:04:20.083
+With sparse rewards, OPI has the best NAUC on all four tasks, and one hundred percent final success on each.
+
+51
+00:04:20.363 --> 00:04:22.069
+What about dense rewards?
+
+52
+00:04:22.969 --> 00:04:29.796
+With dense rewards, OPI remains competitive, with the best NAUC on two of four tasks.
+
+53
+00:04:30.076 --> 00:04:33.255
+Next, can OPI beat the best single oracle?
+
+54
+00:04:34.155 --> 00:04:34.859
+Yes.
+
+55
+00:04:35.139 --> 00:04:40.493
+OPI beats the best single oracle, even where every oracle scores zero.
+
+56
+00:04:40.773 --> 00:04:43.269
+Does the learner take over from the oracles?
+
+57
+00:04:44.169 --> 00:04:44.873
+Yes.
+
+58
+00:04:45.153 --> 00:04:53.537
+During training, OPI selects its own learner more and more often, so OPI relies less and less on the oracles.
+
+59
+00:04:53.817 --> 00:04:55.588
+Finally, which parts matter?
+
+60
+00:04:56.488 --> 00:05:01.693
+We remove one part at a time: source-aware scoring, DPG, or sampling.
+
+61
+00:05:01.973 --> 00:05:06.645
+Without sampling, OPI always executes the top-scoring candidate.
+
+62
+00:05:06.925 --> 00:05:08.931
+Each removal lowers performance.
+
+63
+00:05:09.211 --> 00:05:10.299
+To wrap up.
+
+64
+00:05:11.199 --> 00:05:16.553
+Next, we plan to extend OPI to real-world robotic manipulation.
+
+65
+00:05:16.833 --> 00:05:18.327
+Thank you for watching.
+
